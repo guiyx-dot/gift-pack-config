@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>礼包配置 · 需求说明</title>
+  <style>
+    :root {
+      --teal: #13c2c2;
+      --teal-d: #0aa;
+      --side: #e7f0f8;
+      --side-on: #d5e4f2;
+      --ink: #333;
+      --sub: #8c8c8c;
+      --line: #f0f0f0;
+      --bg: #f3f7fb;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #f3f5f7; font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; color: var(--ink); font-size: 14px; line-height: 1.6; }
+    button, input, select, textarea { font: inherit; }
+    .note { background: #fff; border-bottom: 1px solid #e6eef5; padding: 8px 16px; color: #595959; }
+    .note b { color: #cf1322; font-weight: 600; }
+    .app { height: 720px; display: flex; min-height: 0; font-size: 13px; background: var(--bg); border: 1px solid #e6eef5; border-radius: 12px; overflow: hidden; }
+    .side { width: 210px; background: var(--side); padding: 8px 0 16px; flex: none; overflow: auto; }
+    .group { margin: 0; }
+    .l1 { width: 100%; border: 0; background: transparent; color: #4e6070; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 14px; cursor: pointer; text-align: left; }
+    .l1 .name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .l1 .name b { font-weight: 500; }
+    .ico { width: 14px; height: 14px; border: 1.5px solid #7e90a0; border-radius: 3px; flex: none; position: relative; }
+    .ico::after { content: ""; position: absolute; left: 2px; right: 2px; top: 3px; border-top: 1.5px solid #7e90a0; }
+    .chev { width: 6px; height: 6px; border-right: 1.5px solid #8aa0b3; border-bottom: 1.5px solid #8aa0b3; transform: rotate(45deg); margin-top: -3px; flex: none; }
+    .group.open > .l1 .chev { transform: rotate(225deg); margin-top: 2px; }
+    .sub { display: none; }
+    .group.open > .sub { display: block; }
+    .l2 { padding: 9px 12px 9px 38px; color: #5c6d7d; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .l2.on { background: #c5d8ea; color: #1f3a52; font-weight: 600; }
+    .tag { background: #fff1f0; color: #cf1322; border-radius: 4px; font-size: 12px; padding: 0 6px; line-height: 18px; font-weight: 500; }
+    .tag.split { background: #e6fffb; color: #08979c; }
+    .main { flex: 1; padding: 12px; min-width: 0; overflow: auto; }
+    .panel { background: #fff; border-radius: 8px; min-height: 100%; padding: 16px 18px 24px; }
+    .panel h1 { margin: 0 0 14px; font-size: 16px; font-weight: 600; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filters input, .filters select, .field input, .field select { height: 32px; border: 1px solid #e5e6eb; border-radius: 4px; padding: 0 10px; background: #fff; color: var(--ink); }
+    .filters input { width: 160px; }
+    .filters select { width: 140px; color: var(--sub); }
+    .filter-actions { margin-left: auto; display: flex; gap: 8px; }
+    .btn { height: 32px; padding: 0 14px; border-radius: 4px; border: 1px solid transparent; cursor: pointer; }
+    .btn.primary { background: var(--teal); color: #fff; }
+    .btn.ghost { background: #fff; border-color: #d9d9d9; color: #595959; }
+    .btn.text { background: none; color: var(--teal); padding: 0 8px; }
+    .btn.warn { background: none; color: #ff4d4f; padding: 0 8px; }
+    .toolbar { display: flex; gap: 12px; margin: 16px 0 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    th { background: #fafafa; color: #8c8c8c; font-weight: 500; white-space: nowrap; }
+    .back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 15px; font-weight: 600; }
+    .back button { border: 0; background: #f5f5f5; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; }
+    .sec { display: flex; align-items: center; gap: 8px; font-weight: 600; margin: 28px 0 16px; }
+    .sec.basic { margin-top: 4px; }
+    .sec i { width: 3px; height: 14px; background: var(--teal); border-radius: 2px; }
+    .field { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+    .field label { width: 88px; padding-top: 6px; text-align: right; flex: none; }
+    .field label em { color: #ff4d4f; font-style: normal; margin-right: 2px; }
+    .field input, .field select { width: 360px; }
+    .field textarea { width: 360px; height: 88px; border: 1px solid #e5e6eb; border-radius: 4px; padding: 8px 10px; resize: vertical; line-height: 1.6; color: var(--ink); background: #fff; }
+    .upload { width: 96px; height: 96px; border: 1px dashed #d9d9d9; border-radius: 4px; color: #bfbfbf; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+    .goods-bar { margin: 0 0 12px; }
+    .picked { width: 100%; max-width: 920px; table-layout: fixed; }
+    .picked col.c-id { width: 22%; }
+    .picked col.c-name { width: 26%; }
+    .picked col.c-type { width: 14%; }
+    .picked col.c-op { width: 10%; }
+    .picked .empty { color: var(--sub); text-align: center; padding: 28px 0; }
+    .foot { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    .mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; }
+    .dialog { width: 860px; max-width: calc(100% - 48px); background: #fff; border-radius: 8px; padding: 20px 20px 16px; }
+    .dialog h2 { margin: 0 0 14px; font-size: 15px; }
+    .dialog .search { width: 280px; height: 32px; border: 1px solid #e5e6eb; border-radius: 4px; padding: 0 10px; margin-bottom: 12px; }
+    .dialog .foot { margin-top: 16px; }
+    .hint { color: var(--sub); font-size: 12px; line-height: 1.7; margin: 12px 0 0; max-width: 880px; }
+    .hidden { display: none; }
+    .err { color: #ff4d4f; font-size: 12px; margin-left: 104px; margin-top: -8px; margin-bottom: 10px; }
+    #goodsErr { margin: 0 0 10px; }
+    .l2 { cursor: pointer; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+    .pill { height: 28px; padding: 0 14px; border: 0; border-radius: 14px; background: #f2f3f5; color: #4e5969; cursor: pointer; }
+    .pill.on { background: var(--teal); color: #fff; }
+    .merchant-dialog { width: 980px; max-height: calc(100vh - 48px); overflow: auto; }
+    .merchant-dialog .filters { margin-bottom: 12px; }
+    .merchant-dialog .filters input { width: 220px; }
+    .count { margin-top: 10px; color: var(--sub); font-size: 12px; }
+    .err.flat { margin: 8px 0 0; }
+    .doc { max-width: 1080px; margin: 0 auto; padding: 28px 20px 0; }
+    .doc h1 { margin: 0; font-size: 26px; font-weight: 600; }
+    .doc .lead { margin: 8px 0 0; color: #595959; }
+    .doc .card { background: #fff; border-radius: 12px; padding: 18px 18px 8px; margin-top: 16px; }
+    .doc h2 { margin: 0 0 12px; font-size: 16px; }
+    .doc table { font-size: 13px; }
+    .doc th, .doc td { padding: 8px 10px; }
+    .doc td:first-child, .doc th:first-child { white-space: nowrap; width: 88px; }
+    .mark { display: inline-block; border-radius: 4px; font-size: 12px; padding: 0 6px; line-height: 20px; font-weight: 500; }
+    .mark.add { background: #fff1f0; color: #cf1322; }
+    .stage { max-width: 1080px; margin: 0 auto; padding: 0 20px 48px; }
+    .stage .cap { margin: 16px 0 8px; color: #595959; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>礼包配置</h1>
+    <p class="lead">商品配置里新增礼包。一个礼包包含多个商品，商品可以是拆券商品。礼包配好后，在商户中心的商户商品配置里按礼包商品选择。</p>
+
+    <section class="card">
+      <h2>这次改什么</h2>
+      <table>
+        <thead><tr><th></th><th>现在</th><th>改为</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>菜单</td>
+            <td>商品配置下是商品管理、商品类目</td>
+            <td><span class="mark add">新增</span> 礼包配置。商户中心单独作为一级菜单，下面放商户商品配置。两个一级都可以展开和收起</td>
+          </tr>
+          <tr>
+            <td>新增礼包</td>
+            <td>新增商品要填上架业务线、上架渠道、规格、库存和介绍</td>
+            <td>只填礼包名称、礼包说明、礼包图片，并选择包含的商品。不填上架业务线、上架渠道、规格、库存和拆券金额</td>
+          </tr>
+          <tr>
+            <td>礼包列表</td>
+            <td>商品列表有所属业务线</td>
+            <td>礼包列表不展示上架业务线，筛选里也没有这一项</td>
+          </tr>
+          <tr>
+            <td>商户选品</td>
+            <td>新增商品的类型是普通商品、拆券商品、支付宝消费分、通用积分商品</td>
+            <td><span class="mark add">新增</span> 礼包商品。列出已配置的礼包，勾选后进入下一步</td>
+          </tr>
+          <tr>
+            <td>拆券金额</td>
+            <td>发放时填写，按该商品自己的面额从大到小拆</td>
+            <td>不变，不在礼包配置里填写</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>新增礼包</h2>
+      <table>
+        <thead><tr><th>字段</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>礼包名称</td><td>是</td><td></td></tr>
+          <tr><td>礼包说明</td><td>否</td><td></td></tr>
+          <tr><td>礼包图片</td><td>否</td><td></td></tr>
+          <tr><td>包含商品</td><td>是</td><td>至少一件。普通商品和拆券商品都可以，可以多选。拆券的面额留在拆券商品上</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>商户商品配置</h2>
+      <table>
+        <thead><tr><th></th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>入口</td><td>商户中心 → 商户商品配置 → 添加商品</td></tr>
+          <tr><td>商品类型</td><td>在原有类型后增加礼包商品</td></tr>
+          <tr><td>可选范围</td><td>已经配置好的礼包。按商品名称、权益名称搜索</td></tr>
+          <tr><td>确定</td><td>勾选后点下一步，加入该商户的商品</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <div class="stage">
+    <p class="cap">下面是按上述说明可操作的页面。左侧切换礼包配置和商户商品配置。</p>
+    <div class="app">
+    <aside class="side" id="side">
+      <div class="group open"><button class="l1" type="button" aria-expanded="true"><span class="name"><i class="ico"></i><b>商品配置</b></span><i class="chev"></i></button><div class="sub"><div class="l2">商品管理</div><div class="l2">商品类目</div><div class="l2 on" id="navPack">礼包配置 <span class="tag">新增</span></div></div></div>
+      <div class="group open"><button class="l1" type="button" aria-expanded="true"><span class="name"><i class="ico"></i><b>商户中心</b></span><i class="chev"></i></button><div class="sub"><div class="l2" id="navMerchant">商户商品配置</div></div></div>
+    </aside>
+    <div class="main">
+      <section class="panel" id="listView">
+        <h1>礼包列表</h1>
+        <div class="filters">
+          <input placeholder="请输入礼包编号" />
+          <input placeholder="请输入礼包名称" />
+          <select><option>上下架状态</option><option>上架</option><option>下架</option></select>
+          <div class="filter-actions">
+            <button class="btn primary" type="button">查询</button>
+            <button class="btn ghost" type="button">重置</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <button class="btn primary" id="toCreate" type="button">+ 新增礼包</button>
+          <button class="btn ghost" type="button">上架/下架</button>
+          <button class="btn ghost" type="button">批量删除</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th></th><th>礼包编号</th><th>礼包名称</th><th>包含商品</th><th>上下架状态</th><th>操作</th></tr>
+          </thead>
+          <tbody id="packBody"></tbody>
+        </table>
+      </section>
+
+      <section class="panel hidden" id="formView">
+        <div class="back"><button id="backList" type="button">‹</button> 礼包新增</div>
+        <div class="sec basic"><i></i>礼包基本信息</div>
+        <div class="field"><label><em>*</em>礼包名称</label><input id="packName" placeholder="请输入礼包名称" /></div>
+        <div class="err hidden" id="nameErr">请填写礼包名称</div>
+        <div class="field"><label>礼包说明</label><textarea id="packDesc" placeholder="请输入礼包说明"></textarea></div>
+        <div class="field"><label>礼包图片</label><div class="upload"><span>+</span><span>上传图片</span></div></div>
+
+        <div class="sec"><i></i>包含商品</div>
+        <div class="goods-bar"><button class="btn primary" id="openPicker" type="button">选择商品</button></div>
+        <div class="err hidden" id="goodsErr">请至少选择一个商品</div>
+        <table class="picked">
+          <colgroup>
+            <col class="c-id" /><col class="c-name" /><col class="c-type" /><col /><col class="c-op" />
+          </colgroup>
+          <thead>
+            <tr><th>商品编号</th><th>商品名称</th><th>商品类型</th><th>说明</th><th>操作</th></tr>
+          </thead>
+          <tbody id="pickedBody"></tbody>
+        </table>
+        <p class="hint">一个礼包可以选择多个商品。拆券商品和普通商品都能选。拆券的面额留在拆券商品上，发放时再输入金额，按面额从大到小拆。</p>
+        <div class="foot">
+          <button class="btn ghost" id="cancelForm" type="button">取消</button>
+          <button class="btn primary" id="savePack" type="button">保存</button>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="merchantView">
+        <h1>商户商品配置</h1>
+        <p class="hint">添加商品时，商品类型里可以选择已经配置好的礼包。</p>
+        <div class="toolbar">
+          <button class="btn primary" id="openMerchant" type="button">+ 添加商品</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>商品名称</th><th>商品代码</th><th>商品类型</th><th>包含内容</th></tr>
+          </thead>
+          <tbody id="merchantBody"></tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+  </div>
+
+  <div class="mask hidden" id="merchantPicker">
+    <div class="dialog merchant-dialog">
+      <h2>新增商品</h2>
+      <div class="pills" id="typePills"></div>
+      <div class="filters">
+        <input id="merchantName" placeholder="请输入商品名称搜索" />
+        <input id="merchantEquity" placeholder="请输入权益名称搜索" />
+        <button class="btn primary" id="merchantQuery" type="button">查询</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th></th><th>商品名称</th><th>商品代码</th><th>商品类型</th><th>规格组合</th><th>权益组合</th></tr>
+        </thead>
+        <tbody id="merchantGoods"></tbody>
+      </table>
+      <div class="count" id="merchantCount"></div>
+      <div class="err flat hidden" id="merchantErr">请选择商品</div>
+      <div class="foot">
+        <button class="btn ghost" id="closeMerchant" type="button">取消</button>
+        <button class="btn primary" id="nextMerchant" type="button">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mask hidden" id="picker">
+    <div class="dialog">
+      <h2>选择商品</h2>
+      <input class="search" id="goodsSearch" placeholder="搜索商品名称" />
+      <table>
+        <thead>
+          <tr><th></th><th>商品编号</th><th>商品名称</th><th>商品类型</th><th>说明</th></tr>
+        </thead>
+        <tbody id="goodsBody"></tbody>
+      </table>
+      <div class="foot">
+        <button class="btn ghost" id="closePicker" type="button">取消</button>
+        <button class="btn primary" id="confirmPicker" type="button">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const goods = [
+      { id: "06030000000133148", name: "车邦帮无忧63607测试商品", type: "保险商品", note: "固定权益" },
+      { id: "06030000000133146", name: "途行无忧Pro版", type: "保险商品", note: "固定权益" },
+      { id: "06030000000110001", name: "通用券拆券", type: "拆券商品", note: "面额 100元 / 5元 / 1元，发放时按金额从大到小拆" },
+      { id: "06030000000110002", name: "保养券拆券", type: "拆券商品", note: "面额 50元 / 10元，发放时按金额从大到小拆" }
+    ];
+    let packs = [
+      { id: "LB202611020001", name: "新车尊享礼包", status: "上架", goods: ["06030000000133148", "06030000000110001"] }
+    ];
+    let picked = [];
+    let draft = [];
+
+    const listView = document.getElementById("listView");
+    const formView = document.getElementById("formView");
+    const merchantView = document.getElementById("merchantView");
+    const picker = document.getElementById("picker");
+    const merchantPicker = document.getElementById("merchantPicker");
+    const types = ["普通商品", "拆券商品", "支付宝消费分", "通用积分商品", "礼包商品"];
+    const shelf = {
+      普通商品: [
+        { name: "测试万佳乐礼包", code: "06030000000133116", spec: "1元", equity: "0.1元支付宝消费券VPPlus、云谷因公付、湖北骏马京东e卡" },
+        { name: "万佳乐", code: "060300000001332826", spec: "1元-1、2元-1", equity: "万佳乐权益" }
+      ],
+      拆券商品: [
+        { name: "通用券拆券", code: "06030000000110001", spec: "100元 / 5元 / 1元", equity: "通用券" },
+        { name: "保养券拆券", code: "06030000000110002", spec: "50元 / 10元", equity: "保养券" }
+      ],
+      支付宝消费分: [
+        { name: "0.1元支付宝消费券VPPlus", code: "06030000000120001", spec: "0.1元", equity: "支付宝消费分" }
+      ],
+      通用积分商品: [
+        { name: "通用积分兑换商品", code: "06030000000130001", spec: "100积分", equity: "通用积分" }
+      ]
+    };
+    let merchantType = "普通商品";
+    let merchantDraft = [];
+    let merchantChosen = [];
+
+    function typeTag(type) {
+      return type === "拆券商品" ? '<span class="tag split">拆券商品</span>' : type;
+    }
+    function goodName(id) {
+      const g = goods.find((x) => x.id === id);
+      if (!g) return id;
+      return g.type === "拆券商品" ? g.name + "（拆券）" : g.name;
+    }
+    function renderPacks() {
+      document.getElementById("packBody").innerHTML = packs.map((p) => `
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td>${p.id}</td>
+          <td>${p.name}</td>
+          <td>${p.goods.map(goodName).join("、")}</td>
+          <td>${p.status}</td>
+          <td><button class="btn text" type="button">查看详情</button><button class="btn warn" type="button">删除</button></td>
+        </tr>`).join("");
+    }
+    function renderPicked() {
+      const body = document.getElementById("pickedBody");
+      if (!picked.length) {
+        body.innerHTML = '<tr><td colspan="5" class="empty">还没有选择商品</td></tr>';
+        return;
+      }
+      body.innerHTML = picked.map((id) => {
+        const g = goods.find((x) => x.id === id);
+        return `<tr>
+          <td>${g.id}</td><td>${g.name}</td><td>${typeTag(g.type)}</td><td>${g.note}</td>
+          <td><button class="btn warn remove" data-id="${g.id}" type="button">移除</button></td>
+        </tr>`;
+      }).join("");
+    }
+    function renderGoods() {
+      const q = document.getElementById("goodsSearch").value.trim();
+      const rows = goods.filter((g) => !q || g.name.includes(q));
+      document.getElementById("goodsBody").innerHTML = rows.map((g) => `
+        <tr>
+          <td><input type="checkbox" class="pick" value="${g.id}" ${draft.includes(g.id) ? "checked" : ""} /></td>
+          <td>${g.id}</td><td>${g.name}</td><td>${typeTag(g.type)}</td><td>${g.note}</td>
+        </tr>`).join("");
+    }
+    function showForm() {
+      listView.classList.add("hidden");
+      merchantView.classList.add("hidden");
+      formView.classList.remove("hidden");
+      document.getElementById("packName").value = "";
+      document.getElementById("packDesc").value = "";
+      ["nameErr", "goodsErr"].forEach((id) => document.getElementById(id).classList.add("hidden"));
+      picked = [];
+      renderPicked();
+    }
+    function showList() {
+      formView.classList.add("hidden");
+      merchantView.classList.add("hidden");
+      listView.classList.remove("hidden");
+      renderPacks();
+    }
+    function packRows() {
+      return packs.map((p) => ({
+        name: p.name,
+        code: p.id,
+        spec: "—",
+        equity: p.goods.map(goodName).join("、")
+      }));
+    }
+    function merchantRows() {
+      const name = document.getElementById("merchantName").value.trim();
+      const equity = document.getElementById("merchantEquity").value.trim();
+      const source = merchantType === "礼包商品" ? packRows() : shelf[merchantType];
+      return source.filter((row) => (!name || row.name.includes(name)) && (!equity || row.equity.includes(equity)));
+    }
+    function renderMerchantGoods() {
+      const rows = merchantRows();
+      const body = document.getElementById("merchantGoods");
+      body.innerHTML = rows.length ? rows.map((row) => `
+        <tr>
+          <td><input type="checkbox" class="mpick" value="${row.code}" ${merchantDraft.includes(row.code) ? "checked" : ""} /></td>
+          <td>${row.name}</td>
+          <td>${row.code}</td>
+          <td>${merchantType}</td>
+          <td>${row.spec}</td>
+          <td>${row.equity}</td>
+        </tr>`).join("") : '<tr><td colspan="6" class="empty">没有可选择的商品</td></tr>';
+      document.getElementById("merchantCount").textContent = "共 " + rows.length + " 条";
+    }
+    function renderTypePills() {
+      document.getElementById("typePills").innerHTML = types.map((type) =>
+        `<button class="pill${type === merchantType ? " on" : ""}" type="button" data-type="${type}">${type}${type === "礼包商品" ? ' <span class="tag">新增</span>' : ""}</button>`
+      ).join("");
+    }
+    function renderMerchantChosen() {
+      const body = document.getElementById("merchantBody");
+      if (!merchantChosen.length) {
+        body.innerHTML = '<tr><td colspan="4" class="empty">还没有添加商品</td></tr>';
+        return;
+      }
+      body.innerHTML = merchantChosen.map((row) => `
+        <tr><td>${row.name}</td><td>${row.code}</td><td>${row.type}</td><td>${row.equity}</td></tr>`).join("");
+    }
+    function showMerchant() {
+      listView.classList.add("hidden");
+      formView.classList.add("hidden");
+      merchantView.classList.remove("hidden");
+      renderMerchantChosen();
+    }
+    function setNav(which) {
+      document.getElementById("navPack").classList.toggle("on", which === "pack");
+      document.getElementById("navMerchant").classList.toggle("on", which === "merchant");
+    }
+
+    document.querySelectorAll("#side .l1").forEach((btn) => {
+      btn.setAttribute("aria-expanded", btn.parentElement.classList.contains("open") ? "true" : "false");
+      btn.onclick = () => {
+        const open = btn.parentElement.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      };
+    });
+
+    document.getElementById("navPack").onclick = () => { setNav("pack"); showList(); };
+    document.getElementById("navMerchant").onclick = () => { setNav("merchant"); showMerchant(); };
+    document.getElementById("openMerchant").onclick = () => {
+      merchantType = "普通商品";
+      merchantDraft = [];
+      document.getElementById("merchantName").value = "";
+      document.getElementById("merchantEquity").value = "";
+      document.getElementById("merchantErr").classList.add("hidden");
+      renderTypePills();
+      renderMerchantGoods();
+      merchantPicker.classList.remove("hidden");
+    };
+    document.getElementById("closeMerchant").onclick = () => merchantPicker.classList.add("hidden");
+    document.getElementById("merchantQuery").onclick = renderMerchantGoods;
+    document.getElementById("merchantName").oninput = renderMerchantGoods;
+    document.getElementById("merchantEquity").oninput = renderMerchantGoods;
+    document.getElementById("typePills").onclick = (e) => {
+      const pill = e.target.closest(".pill");
+      if (!pill) return;
+      merchantType = pill.dataset.type;
+      merchantDraft = [];
+      renderTypePills();
+      renderMerchantGoods();
+    };
+    document.getElementById("merchantGoods").onchange = (e) => {
+      if (!e.target.classList.contains("mpick")) return;
+      const code = e.target.value;
+      merchantDraft = e.target.checked ? merchantDraft.concat(code) : merchantDraft.filter((x) => x !== code);
+    };
+    document.getElementById("nextMerchant").onclick = () => {
+      const rows = merchantRows().filter((row) => merchantDraft.includes(row.code));
+      document.getElementById("merchantErr").classList.toggle("hidden", rows.length > 0);
+      if (!rows.length) return;
+      rows.forEach((row) => {
+        if (merchantChosen.some((item) => item.code === row.code)) return;
+        merchantChosen.push({ name: row.name, code: row.code, type: merchantType, equity: row.equity });
+      });
+      merchantPicker.classList.add("hidden");
+      renderMerchantChosen();
+    };
+
+    document.getElementById("toCreate").onclick = showForm;
+    document.getElementById("backList").onclick = showList;
+    document.getElementById("cancelForm").onclick = showList;
+    document.getElementById("openPicker").onclick = () => {
+      draft = picked.slice();
+      document.getElementById("goodsSearch").value = "";
+      renderGoods();
+      picker.classList.remove("hidden");
+    };
+    document.getElementById("closePicker").onclick = () => picker.classList.add("hidden");
+    document.getElementById("goodsSearch").oninput = renderGoods;
+    document.getElementById("goodsBody").onchange = (e) => {
+      if (!e.target.classList.contains("pick")) return;
+      const id = e.target.value;
+      draft = e.target.checked ? draft.concat(id) : draft.filter((x) => x !== id);
+    };
+    document.getElementById("confirmPicker").onclick = () => {
+      picked = draft.slice();
+      picker.classList.add("hidden");
+      renderPicked();
+      document.getElementById("goodsErr").classList.toggle("hidden", picked.length > 0);
+    };
+    document.getElementById("pickedBody").onclick = (e) => {
+      const btn = e.target.closest(".remove");
+      if (!btn) return;
+      picked = picked.filter((id) => id !== btn.dataset.id);
+      renderPicked();
+    };
+    document.getElementById("savePack").onclick = () => {
+      const name = document.getElementById("packName").value.trim();
+      const desc = document.getElementById("packDesc").value.trim();
+      document.getElementById("nameErr").classList.toggle("hidden", !!name);
+      document.getElementById("goodsErr").classList.toggle("hidden", picked.length > 0);
+      if (!name || !picked.length) return;
+      const n = String(packs.length + 1).padStart(4, "0");
+      packs.unshift({ id: "LB20261102" + n, name, desc, status: "下架", goods: picked.slice() });
+      showList();
+    };
+    renderMerchantChosen();
+    renderPacks();
+  </script>
+</body>
+</html>
